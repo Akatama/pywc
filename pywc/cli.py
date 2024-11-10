@@ -6,6 +6,7 @@ from collections import namedtuple
 
 import os
 
+
 FileMetadata = namedtuple("FileMetadata", ["numBytes", "numLines", "numWords", "numChars", "knownFilename"])
 
 
@@ -21,7 +22,7 @@ def cli(filename, countBytes, countLines, countWords, countChars):
     FILENAME is the file to perform wc operations on.
     """
     locale.setlocale(locale.LC_ALL, "")
-    data = handleFile(filename)
+    data = _handleFile(filename)
     result = ""
 
     # default case
@@ -42,15 +43,7 @@ def cli(filename, countBytes, countLines, countWords, countChars):
         click.echo(f"{result}")
 
 
-def getByteCount():
-    numBytes = 0
-    with click.open_file("-", "rb") as f:
-        while f.read(1):
-            numBytes += 1
-    return numBytes
-
-
-def getFileMetadataFromFilename(filename):
+def _getFileMetadataFromFilename(filename):
     numBytes = os.path.getsize(filename)
     numLines = 0
     numWords = 0
@@ -64,15 +57,13 @@ def getFileMetadataFromFilename(filename):
     return FileMetadata(numBytes, numLines, numWords, numChars, True)
 
 
-def getFileMetadataFromStdin():
+def _getFileMetadataFromStdin():
     numBytes = 0
     numLines = 0
     numWords = 0
     numChars = 0
     with click.open_file("-", "r") as f:
-        click.echo(f.read())
         while line := f.readline():
-            click.echo(f"{line}")
             numLines += 1
             numWords += len(line.split())
             # need to count the newline character
@@ -82,9 +73,9 @@ def getFileMetadataFromStdin():
     return FileMetadata(numBytes, numLines, numWords, numChars, False)
 
 
-def handleFile(filename):
+def _handleFile(filename):
     # read from STDIN
     if filename is None:
-        return getFileMetadataFromStdin()
+        return _getFileMetadataFromStdin()
     else:
-        return getFileMetadataFromFilename(filename)
+        return _getFileMetadataFromFilename(filename)

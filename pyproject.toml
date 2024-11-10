@@ -1,6 +1,6 @@
 [project]
 name = "pywc"
-version = "0.8"
+version = "1.0"
 description = "Python version of wc command line tool"
 readme = "README.md"
 authors = [{name = "Jimmy Lindsey"}]
@@ -29,7 +29,6 @@ CI = "https://github.com/Akatama/pywc/actions"
 pywc = "pywc.cli:cli"
 
 [tool.black]
-enable = true
 line-length=119
 
 [project.optional-dependencies]
