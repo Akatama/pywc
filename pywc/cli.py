@@ -37,6 +37,7 @@ def cli(filename, countBytes, countLines, countWords, countChars):
         result = f"{result}\t{data.numChars}"
     if countBytes:
         result = f"{result}\t{data.numBytes}"
+
     if data.knownFilename:
         click.echo(f"{result}\t{filename}")
     else:

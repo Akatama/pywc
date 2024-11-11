@@ -1,5 +1,6 @@
 from click.testing import CliRunner
-from pywc.cli import cli
+from pywc.cli import cli, FileMetadata, _getFileMetadataFromFilename, _handleFile
+import locale
 
 
 def test_version():
@@ -18,11 +19,14 @@ def test_default():
 
 
 def test_default_stdin():
+    locale.setlocale(locale.LC_ALL, "")
     runner = CliRunner()
-    result = runner.invoke(cli, input='cat test.txt')
-    assert result.exit_code == 0
-    # assert result.output == "\t7145\t58164\t342190\n"
-    assert result.output == "\t1\t2\t12\n"
+    with open("test.txt", "r") as f:
+        file = f.read()
+        result = runner.invoke(cli, input=f"{file}")
+        assert result.exit_code == 0
+        assert result.output == "\t7145\t58164\t335045\n"
+        # assert result.output == "\t1\t2\t12\n"
 
 
 def test_bytes():
@@ -33,10 +37,13 @@ def test_bytes():
 
 
 def test_bytes_stdin():
+    locale.setlocale(locale.LC_ALL, "")
     runner = CliRunner()
-    result = runner.invoke(cli, ["-c"], input="cat test.txt")
-    assert result.exit_code == 0
-    assert result.output == "\t12\n"
+    with open("test.txt", "r") as f:
+        file = f.read()
+        result = runner.invoke(cli, ["-c"], input=file)
+        assert result.exit_code == 0
+        assert result.output == "\t335045\n"
 
 
 def test_lines():
@@ -48,9 +55,11 @@ def test_lines():
 
 def test_lines_stdin():
     runner = CliRunner()
-    result = runner.invoke(cli, ["-l"], input="cat test.txt")
-    assert result.exit_code == 0
-    assert result.output == "\t1\n"
+    with open("test.txt", "r") as f:
+        file = f.read()
+        result = runner.invoke(cli, ["-l"], input=file)
+        assert result.exit_code == 0
+        assert result.output == "\t7145\n"
 
 
 def test_words():
@@ -62,9 +71,11 @@ def test_words():
 
 def test_words_stdin():
     runner = CliRunner()
-    result = runner.invoke(cli, ["-w"], input="cat test.txt")
-    assert result.exit_code == 0
-    assert result.output == "\t2\n"
+    with open("test.txt", "r") as f:
+        file = f.read()
+        result = runner.invoke(cli, ["-w"], input=file)
+        assert result.exit_code == 0
+        assert result.output == "\t58164\n"
 
 
 def test_characters():
@@ -76,9 +87,12 @@ def test_characters():
 
 def test_characters_stdin():
     runner = CliRunner()
-    result = runner.invoke(cli, ["-m"], input="cat test.txt")
-    assert result.exit_code == 0
-    assert result.output == "\t12\n"
+    locale.setlocale(locale.LC_ALL, "")
+    with open("test.txt", "r") as f:
+        file = f.read()
+        result = runner.invoke(cli, ["-m"], input=file)
+        assert result.exit_code == 0
+        assert result.output == "\t332147\n"
 
 
 def test_all():
@@ -90,6 +104,21 @@ def test_all():
 
 def test_all_stdin():
     runner = CliRunner()
-    result = runner.invoke(cli, ["-clwm"], input="cat test.txt")
-    assert result.exit_code == 0
-    assert result.output == "\t1\t2\t12\t12\n"
+    locale.setlocale(locale.LC_ALL, "")
+    with open("test.txt", "r") as f:
+        file = f.read()
+        result = runner.invoke(cli, ["-clwm"], input=file)
+        assert result.exit_code == 0
+        assert result.output == "\t7145\t58164\t332147\t335045\n"
+
+
+def test_getFileMetadataFromFilename():
+    fileMetadataExpected = FileMetadata(342190, 7145, 58164, 339292, True)
+    fileMetadataActual = _getFileMetadataFromFilename("test.txt")
+    assert fileMetadataActual == fileMetadataExpected
+
+
+def test_handleFile():
+    fileMetadataExpected = FileMetadata(342190, 7145, 58164, 339292, True)
+    fileMetadataActual = _handleFile("test.txt")
+    assert fileMetadataActual == fileMetadataExpected
